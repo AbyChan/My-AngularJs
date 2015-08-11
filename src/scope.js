@@ -9,7 +9,7 @@ function initWatchVal() {}
 Scope.prototype.$watch = function(watchFn, listenerFn){
   var watcher = {
     watchFn: watchFn,
-    listenerFn: listenerFn,
+    listenerFn: listenerFn || function() {},//put an empty no-op function in its place
     last: initWatchVal //add init so digest awary have their listener functions invoked
                        //ex. value is undefined
                        //initWatchval just a value
