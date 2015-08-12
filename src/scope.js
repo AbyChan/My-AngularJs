@@ -16,6 +16,7 @@ Scope.prototype.$watch = function(watchFn, listenerFn){
                        //initWatchval just a value
   };
   this.$$watchers.push(watcher);
+  this.$$lastDirtyWatch = null;
 };
 
 Scope.prototype.$$digestOnce = function(){
