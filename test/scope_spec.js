@@ -157,6 +157,7 @@ describe('Scope', function() {
 
       scope.array[0] = 420;
       scope.$digest();
+      //only one changed so 100 + 1
       expect(watchExecutions).toBe(301);
     });
 
