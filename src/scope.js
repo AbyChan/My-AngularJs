@@ -3,6 +3,7 @@
 function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
+  this.$$asyncQueue = [];
 }
 
 function initWatchVal() {}
@@ -45,6 +46,10 @@ Scope.prototype.$digest = function(){
   var dirty;
   this.$$lastDirtyWatch = null;
   do{
+    while(this.$$asyncQueue.length){
+      var asyncTask = this.$$asyncQueue.shift();
+      asyncTask.scope.$eval(asyncTask.expression);
+    }
     dirty = this.$$digestOnce();
     if ( dirty && !(ttl--) ) {
       throw "10 digest iterations readched";
@@ -73,3 +78,12 @@ Scope.prototype.$apply = function(expr){
     this.$digest();
   }
 };
+
+Scope.prototype.$evalAsync = function(expr){
+  this.$$asyncQueue.push({
+    scope: this,
+    expression: expr
+  });
+};
+
+
