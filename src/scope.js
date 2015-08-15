@@ -51,7 +51,7 @@ Scope.prototype.$digest = function(){
       asyncTask.scope.$eval(asyncTask.expression);
     }
     dirty = this.$$digestOnce();
-    if ( dirty && !(ttl--) ) {
+    if ( (dirty || this.$$asyncQueue.length) && !(ttl--) ) {
       throw "10 digest iterations readched";
     }
   } while (dirty || this.$$asyncQueue.length);
@@ -85,5 +85,3 @@ Scope.prototype.$evalAsync = function(expr){
     expression: expr
   });
 };
-
-
