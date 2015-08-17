@@ -13,6 +13,7 @@ function Scope() {
 function initWatchVal() {}
 
 Scope.prototype.$watch = function(watchFn, listenerFn, valueEq){
+  var self = this;
   var watcher = {
     watchFn: watchFn,
     listenerFn: listenerFn || function() {},//put an empty no-op function in its place
@@ -23,6 +24,12 @@ Scope.prototype.$watch = function(watchFn, listenerFn, valueEq){
   };
   this.$$watchers.push(watcher);
   this.$$lastDirtyWatch = null;
+  return function(){
+    var index = self.$$watchers.indexOf(watcher);
+    if ( index >= 0 ) {
+      self.$$watchers.splice(index, 1); // = remove it
+    }
+  };
 };
 
 Scope.prototype.$$digestOnce = function(){
@@ -33,12 +40,12 @@ Scope.prototype.$$digestOnce = function(){
       newValue = watcher.watchFn(self); //watchFn return new value
       oldValue = watcher.last;
       if (!self.$$areEqual(newValue, oldValue, watcher.valueEq)) {
-	self.$$lastDirtyWatch = watcher;
-	watcher.last = (watcher.valueEq ? _.cloneDeep(newValue) : newValue);
-	watcher.listenerFn(newValue,
-			   (oldValue === initWatchVal ? newValue : oldValue),
-			   self); //when first changed shoudln't return initwatchval;
-	dirty = true;
+        self.$$lastDirtyWatch = watcher;
+        watcher.last = (watcher.valueEq ? _.cloneDeep(newValue) : newValue);
+        watcher.listenerFn(newValue,
+                           (oldValue === initWatchVal ? newValue : oldValue),
+                           self); //when first changed shoudln't return initwatchval;
+        dirty = true;
       } else if (self.$$lastDirtyWatch === watcher) {
         return false;
       }
@@ -59,7 +66,7 @@ Scope.prototype.$digest = function(){
     clearTimeout(this.$$applyAsyncId);
     this.$$flushApplyAsync();
   }
-  
+
   do{
     while(this.$$asyncQueue.length){
       var asyncTask = this.$$asyncQueue.shift();
@@ -130,7 +137,7 @@ Scope.prototype.$evalAsync = function(expr){
 Scope.prototype.$beginPhase = function(phase) {
   if (this.$$phase) {
     throw this.$$phase + 'already in progress';
-  } 
+  }
   this.$$phase = phase;
 };
 
